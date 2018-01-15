@@ -1,0 +1,29 @@
+acl SSL_ports port 443
+acl Safe_ports port 80          # http
+acl Safe_ports port 21          # ftp
+acl Safe_ports port 443         # https
+acl Safe_ports port 70          # gopher
+acl Safe_ports port 210         # wais
+acl Safe_ports port 1025-65535  # unregistered ports
+acl Safe_ports port 280         # http-mgmt
+acl Safe_ports port 488         # gss-http
+acl Safe_ports port 591         # filemaker
+acl Safe_ports port 777         # multiling http
+acl CONNECT method CONNECT
+
+#Default:
+acl googledotcom dstdomain .bbc.com
+http_access allow googledotcom
+
+http_access allow manager localhost
+http_access deny manager
+
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+
+http_access deny all
+
+
+http_port 3128
+access_log /apps/squid/var/logs/access.log squid
+cache_log /apps/squid/var/logs/cache.log squid

@@ -20,9 +20,9 @@ are interested in:
 docker run  -p 3128:3128 -ti docker.io/salrashid123/squidproxy /bin/bash
 ```
 
-### TRANSPARENT
+### FORWARD
 
-Transparent mode intercepts HTTP traffic and uses CONNECT for https.
+Explicit forward proxy mode intercepts HTTP traffic and uses CONNECT for https.
 
 Launch:
 
@@ -45,6 +45,9 @@ $ cat /apps/squid/var/logs/access.log
 1497880363.186    198 172.17.0.1 TCP_MISS/200 190196 GET http://www.bbc.com/ - HIER_DIRECT/151.101.52.81 text/html
 1497880363.439   1392 172.17.0.1 TCP_MISS/200 3403 CONNECT www.bbc.com:443 - HIER_DIRECT/151.101.52.81
 ```
+
+You can also setup allow/deny rules for the domain:
+- see [squid.conf.allow_domains](squid.conf.allow_domains)
 
 
 ### HTTPS INTERCEPT
@@ -114,6 +117,7 @@ Certificate:
                 Public-Key: (1024 bit)
 ```
 
+- Also see: [How to Add DNS Filtering to Your NAT Instance with Squid](https://aws.amazon.com/blogs/security/how-to-add-dns-filtering-to-your-nat-instance-with-squid/)
 
 ### CACHE
 
