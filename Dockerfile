@@ -1,4 +1,4 @@
-FROM debian
+FROM debian:8
 RUN apt-get -y update
 RUN apt-get install -y curl supervisor git openssl  build-essential libssl-dev wget
 RUN mkdir -p /var/log/supervisor
