@@ -4866,8 +4866,8 @@ coredump_dir /apps/squid/var/cache
 
 # Add these lines to /etc/squid/squid.conf file.
 # /usr/bin/python should be replaced by the path to python executable if you installed it somewhere else.
-redirect_program /usr/bin/python /apps/squid/gcs_redirect.py
+#redirect_program /usr/bin/python /apps/squid/gcs_redirect.py
 # Number of instances of the above program that should run concurrently.
 # 5 is good enough but you should go for 10 at least. Anything below 5 would not work properly.
-redirect_children 5
+#redirect_children 5
 
