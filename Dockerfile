@@ -7,7 +7,7 @@ WORKDIR /apps/
 #RUN wget -O - http://www.squid-cache.org/Versions/v3/3.4/squid-3.4.14.tar.gz | tar zxfv -
 RUN wget -O - http://www.squid-cache.org/Versions/v3/3.5/squid-3.5.27.tar.gz | tar zxfv -
 #RUN cd /apps/squid-3.4.14/ && ./configure --prefix=/apps/squid --enable-icap-client --enable-ssl --with-openssl --enable-ssl-crtd --enable-auth --enable-basic-auth-helpers="NCSA" && make && make install
-RUN cd /apps/squid-3.5.27/ && ./configure --prefix=/apps/squid --enable-icap-client --enable-ssl --with-openssl --enable-ssl-crtd --enable-auth --enable-basic-auth-helpers="NCSA" && make && make install
+RUN CPU=$(( `nproc --all`-1 )) && cd /apps/squid-3.5.27/ && ./configure --prefix=/apps/squid --enable-icap-client --enable-ssl --with-openssl --enable-ssl-crtd --enable-auth --enable-basic-auth-helpers="NCSA" && make -j$CPU && make install
 ADD . /apps/
 
 RUN chown -R nobody /apps/
