@@ -27,7 +27,7 @@ Explicit forward proxy mode intercepts HTTP traffic and uses CONNECT for https.
 Launch:
 
 ```
-$ /apps/squid/sbin/squid -NsY -f /apps/squid.conf.transparent &
+$ /apps/squid/sbin/squid -NsY -f /apps/squid.conf.forward &
 ```
 
 then in a new window run both http and https calls:
