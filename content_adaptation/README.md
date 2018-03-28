@@ -66,4 +66,4 @@ curl -k -o /dev/null -s -x localhost:3128 -w "%{http_code}\n" -L https://cloud.g
 ```
 
 
->> Note that even over **https** B) is rejected but C) is not.
+>> Note that even over **https** B) is rejected but D) is not.
