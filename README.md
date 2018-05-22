@@ -78,12 +78,15 @@ sslcrtd_program /apps/squid/libexec/ssl_crtd -s /apps/squid/var/lib/ssl_db -M 4M
 
 Launch
 ```
-$ /apps/squid/sbin/squid -NsY -f /apps/squid.conf.https_proxy &
+$ docker run  -p 3128:3128 -ti docker.io/salrashid123/squidproxy /apps/squid/sbin/squid -NsY -f /apps/squid.conf.https_proxy
 ```
+
 
 then in a new window, try to access a secure site
 ```
-$ curl -v -k -x localhost:3128 -L https://www.yahoo.com
+$ wget https://raw.githubusercontent.com/salrashid123/squid_proxy/master/CA_crt.pem
+
+$ curl -v --cacert CA_crt.pem -x localhost:3128  https://www.yahoo.com
 ```
 
 
@@ -118,6 +121,10 @@ Certificate:
 ```
 
 - Also see: [How to Add DNS Filtering to Your NAT Instance with Squid](https://aws.amazon.com/blogs/security/how-to-add-dns-filtering-to-your-nat-instance-with-squid/)
+
+#### Content Adaptation
+
+[content_adaptation/](content_adaptation) allows you to not just intercept SSL traffic, but to actually rewrite the content both ways.
 
 ### CACHE
 
