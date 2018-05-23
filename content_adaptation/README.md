@@ -36,32 +36,35 @@ docker build -t sslproxy .
 docker run -ti -p 3128:3128 sslproxy
 ```
 
-then in a new window, run:
+then in a new window, first get the get the cert we used:
 
+```
+wget https://raw.githubusercontent.com/salrashid123/squid_proxy/master/content_adaptation/CA_crt.pem
+```
 A)
 ```
-curl -k  -x localhost:3128  https://www.cnn.com/
+curl --cacert CA_crt.pem -x localhost:3128  https://www.cnn.com/
 curl: (56) Received HTTP code 403 from proxy after CONNECT
 ```
 
 B)
 ```
 with proxy:
-curl -k -o /dev/null -s -x localhost:3128 -w "%{http_code}\n" -L https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
+curl --cacert CA_crt.pem -o /dev/null -s -x localhost:3128 -w "%{http_code}\n" -L https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
 403
 ```
 
 C)
 ```
 without proxy:
-curl -k -o /dev/null -s -w "%{http_code}\n" -L https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
+curl --cacert CA_crt.pem -o /dev/null -s -w "%{http_code}\n" -L https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
 200
 ```
 
 D)
 ```
 with proxy:
-curl -k -o /dev/null -s -x localhost:3128 -w "%{http_code}\n" -L https://cloud.google.com/kubernetes-engine/
+curl --cacert CA_crt.pem -o /dev/null -s -x localhost:3128 -w "%{http_code}\n" -L https://cloud.google.com/kubernetes-engine/
 200
 ```
 
