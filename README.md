@@ -50,6 +50,9 @@ You can also setup allow/deny rules for the domain:
 - see [squid.conf.allow_domains](squid.conf.allow_domains)
 
 
+If you want to use ```https_port```, use ```squid.conf.https_port```
+
+
 ### HTTPS INTERCEPT
 
 
@@ -62,7 +65,7 @@ but if not, you will see a certificate warning.
 
 Here is the relevant squid conf setting to allow this:
 
-squid.conf.https_proxy:
+squid.conf.intercept:
 ```
 # Squid normally listens to port 3128
 visible_hostname squid.yourdomain.com
@@ -78,7 +81,7 @@ sslcrtd_program /apps/squid/libexec/ssl_crtd -s /apps/squid/var/lib/ssl_db -M 4M
 
 Launch
 ```
-$ docker run  -p 3128:3128 -ti docker.io/salrashid123/squidproxy /apps/squid/sbin/squid -NsY -f /apps/squid.conf.https_proxy
+$ docker run  -p 3128:3128 -ti docker.io/salrashid123/squidproxy /apps/squid/sbin/squid -NsY -f /apps/squid.conf.intercept
 ```
 
 

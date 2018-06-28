@@ -1,6 +1,6 @@
 FROM debian:8
 RUN apt-get -y update
-RUN apt-get install -y curl supervisor git openssl  build-essential libssl-dev wget
+RUN apt-get install -y curl supervisor git openssl  build-essential libssl-dev wget vim curl
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 WORKDIR /apps/
@@ -22,4 +22,3 @@ RUN chown -R nobody /apps/
 
 EXPOSE 3128
 #CMD ["/usr/bin/supervisord"]
-
