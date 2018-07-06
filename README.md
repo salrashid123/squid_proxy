@@ -50,7 +50,8 @@ You can also setup allow/deny rules for the domain:
 - see [squid.conf.allow_domains](squid.conf.allow_domains)
 
 
-If you want to use ```https_port```, use ```squid.conf.https_port```
+If you want to use ```https_port```, use ```squid.conf.https_port```.  For ```https_port``` use the [curl options](https://daniel.haxx.se/blog/2016/11/26/https-proxy-with-curl/) like this:
+```curl -v --proxy-cacert CA_crt.pem  -k -x https://squid.yourdomain.com:3128  https://www.yahoo.com/```
 
 
 ### HTTPS INTERCEPT
