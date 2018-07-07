@@ -33,17 +33,17 @@ $ /apps/squid/sbin/squid -NsY -f /apps/squid.conf.forward &
 then in a new window run both http and https calls:
 
 ```
-$ curl -v -k -x localhost:3128 -L http://www.bbc.com.com/
+$ curl -v -k -x localhost:3128 -L http://www.bbc.com/
 
-$ curl -v -k -x localhost:3128 -L https://www.bbc.com.com/
+$ curl -v -k -x localhost:3128 -L https://www.bbc.com/
 ```
 
 you should see a GET and CONNECT logs within the container
 
 ```
 $ cat /apps/squid/var/logs/access.log
-1497880363.186    198 172.17.0.1 TCP_MISS/200 190196 GET http://www.bbc.com/ - HIER_DIRECT/151.101.52.81 text/html
-1497880363.439   1392 172.17.0.1 TCP_MISS/200 3403 CONNECT www.bbc.com:443 - HIER_DIRECT/151.101.52.81
+1530946085.554    108 172.17.0.1 TCP_MISS/200 224517 GET http://www.bbc.com/ - HIER_DIRECT/151.101.52.81 text/html
+1530946085.556    451 172.17.0.1 TCP_TUNNEL/200 3909 CONNECT www.bbc.com:443 - HIER_DIRECT/151.101.52.81 -
 ```
 
 You can also setup allow/deny rules for the domain:
@@ -137,7 +137,12 @@ Has cache enabled for HTTP traffic
 
 Launch
 ```
-$ /apps/squid/sbin/squid -NsY -f /apps/squid.conf.cache &
+First init the cache directories
+
+$ /apps/squid/sbin/squid -z -f /apps/squid.conf.cache
+
+then
+$ /apps/squid/sbin/squid -NsY -f /apps/squid.conf.cache
 ```
 
 
