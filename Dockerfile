@@ -4,7 +4,6 @@ RUN apt-get install -y curl supervisor git openssl  build-essential libssl-dev w
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 WORKDIR /apps/
-#RUN wget -O - http://www.squid-cache.org/Versions/v3/3.4/squid-3.4.14.tar.gz | tar zxfv -
 RUN wget -O - http://www.squid-cache.org/Versions/v3/3.5/squid-3.5.27.tar.gz | tar zxfv - \
     && CPU=$(( `nproc --all`-1 )) \
     && cd /apps/squid-3.5.27/ \
@@ -15,10 +14,11 @@ RUN wget -O - http://www.squid-cache.org/Versions/v3/3.5/squid-3.5.27.tar.gz | t
     && rm -rf /apps/squid-3.5.27
 ADD . /apps/
 
-RUN chown -R nobody /apps/
+RUN chown -R nobody:nogroup /apps/
 RUN mkdir -p  /apps/squid/var/lib/
 RUN /apps/squid/libexec/ssl_crtd -c -s /apps/squid/var/lib/ssl_db -M 4MB
-RUN chown -R nobody /apps/
+RUN /apps/squid/sbin/squid -z -f /apps/squid.conf.cache
+RUN chown -R nobody:nogroup /apps/
 
 EXPOSE 3128
 #CMD ["/usr/bin/supervisord"]
