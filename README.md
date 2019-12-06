@@ -33,9 +33,9 @@ $ /apps/squid/sbin/squid -NsY -f /apps/squid.conf.forward &
 then in a new window run both http and https calls:
 
 ```
-$ curl -v -k -x localhost:3128 -L http://www.bbc.com/
+$ curl -v -x localhost:3128 -L http://www.bbc.com/
 
-$ curl -v -k -x localhost:3128 -L https://www.bbc.com/
+$ curl -v -x localhost:3128 -L https://www.bbc.com/
 ```
 
 you should see a GET and CONNECT logs within the container
@@ -52,7 +52,8 @@ You can also setup allow/deny rules for the domain:
 
 If you want to use ```https_port```, use ```squid.conf.https_port```.  For ```https_port``` see [curl options](https://daniel.haxx.se/blog/2016/11/26/https-proxy-with-curl/) like this:
 
-```curl -v --proxy-cacert CA_crt.pem  -k -x https://squid.yourdomain.com:3128  https://www.yahoo.com/```
+```curl -v --proxy-cacert CA_crt.pem  -x https://squid.yourdomain.com:3128  https://www.yahoo.com/```
+(you will need to add `127.0.0.1 squid.yourdomain.com` to your `/etc/hosts` as an override)
 
 
 ### HTTPS INTERCEPT
@@ -65,20 +66,31 @@ same specifications of the site you wanted to visit and sends that down.
 Essentially, the squid proxy is acting as man-in-the-middle.   Ofcourse, you client needs to trust the certificate for the proxy
 but if not, you will see a certificate warning.
 
+- [http://www.squid-cache.org/Doc/config/ssl_bump/](http://www.squid-cache.org/Doc/config/ssl_bump/)
+
 Here is the relevant squid conf setting to allow this:
 
 squid.conf.intercept:
 ```
 # Squid normally listens to port 3128
 visible_hostname squid.yourdomain.com
-http_port 3128 ssl-bump generate-host-certificates=on cert=/apps/server_crt.pem key=/apps/server_key.pem  sslflags=DONT_VERIFY_PEER
 
-always_direct allow all  
-ssl_bump server-first all  
-sslproxy_cert_error deny all  
-sslproxy_flags DONT_VERIFY_PEER  
-sslcrtd_program /apps/squid/libexec/ssl_crtd -s /apps/squid/var/lib/ssl_db -M 4MB sslcrtd_children 8 startup=1 idle=1  
+http_port 3128 ssl-bump generate-host-certificates=on cert=/apps/CA_crt.pem key=/apps/CA_key.pem
+
+always_direct allow all
+
+acl excluded_sites ssl::server_name .wellsfargo.com
+ssl_bump splice excluded_sites
+ssl_bump splice all
+
+sslproxy_cert_error deny all
+sslcrtd_program /apps/squid/libexec/ssl_crtd -s /apps/squid/var/lib/ssl_db -M 4MB sslcrtd_children 8 startup=1 idle=1
+
 ```
+
+The configuration above will insepct all SSL traffic but only _splice_ traffic to wellsfargo.com to view its intended SNI (server_name).  You can use the splice capability to apply ACL rules against without inspecting.
+
+- [SslPeekAndSplice](https://wiki.squid-cache.org/Features/SslPeekAndSplice)
 
 
 Launch
@@ -91,38 +103,44 @@ then in a new window, try to access a secure site
 ```
 $ wget https://raw.githubusercontent.com/salrashid123/squid_proxy/master/CA_crt.pem
 
-$ curl -v --cacert CA_crt.pem -x localhost:3128  https://www.yahoo.com
+$ curl -v --proxy-cacert CA_crt.pem --cacert CA_crt.pem -x localhost:3128  https://www.httpbin.org
 ```
 
-
-you should see the proxy intercept and recreate yahoo's public certificate:
-
+you should see the proxy intercept and recreate httpbin's public certificate:
 
 ```
 * Server certificate:
-*      subject: C=US; ST=California; L=Sunnyvale; O=Yahoo Inc.; OU=Information Technology; CN=www.yahoo.com
-*      start date: 2015-10-31 00:00:00 GMT
-*      expire date: 2017-10-30 23:59:59 GMT
-*      issuer: C=US; ST=Illinois; L=Chicago; O=Google Inc.; CN=*.test.google.com
+*  subject: CN=www.httpbin.org
+*  start date: Dec  6 13:24:37 2019 GMT
+*  expire date: Jul 28 13:24:37 2021 GMT
+*  subjectAltName: host "www.httpbin.org" matched cert's "www.httpbin.org"
+*  issuer: C=US; ST=California; L=Mountain View; O=Google; OU=Enterprise; CN=MyCA   <<<<<<<<<<<<<<<<<<
+*  SSL certificate verify ok.
+> GET / HTTP/1.1
+> Host: www.httpbin.org
+> User-Agent: curl/7.66.0
+> Accept: */*
+
 ```
 
-note the issuer is the proxy's server certificate (server_crt.pem), NOT yahoo's official public cert
+note the issuer is the proxy's server certificate (CA_crt.pem), NOT httpbin's official public cert
+
+Now try to access `www.wellsfargo.com`.  The configuration above simply views the SNI information without snooping on the data
 
 ```
-$ openssl x509 -in server_crt.pem -text -noout
-Certificate:
-    Data:
-        Version: 3 (0x2)
-        Serial Number: 3 (0x3)
-    Signature Algorithm: sha1WithRSAEncryption
-        Issuer: C=AU, ST=Some-State, O=Internet Widgits Pty Ltd, CN=testca
-        Validity
-            Not Before: Jul 22 06:00:57 2014 GMT
-            Not After : Jul 19 06:00:57 2024 GMT
-        Subject: C=US, ST=Illinois, L=Chicago, O=Google Inc., CN=*.test.google.com
-        Subject Public Key Info:
-            Public Key Algorithm: rsaEncryption
-                Public-Key: (1024 bit)
+$ curl -vvvv --proxy-cacert CA_crt.pem --cacert CA_crt.pem -x localhost:3128  https://www.wellsfargo.com
+
+* Server certificate:
+*  subject: businessCategory=Private Organization; jurisdictionC=US; jurisdictionST=Delaware; serialNumber=251212; C=US; ST=California; L=San Francisco; O=Wells Fargo & Company; OU=DCG-PSG; CN=www.wellsfargo.com
+*  start date: Feb  8 00:00:00 2019 GMT
+*  expire date: Feb  8 12:00:00 2021 GMT
+*  subjectAltName: host "www.wellsfargo.com" matched cert's "www.wellsfargo.com"
+*  issuer: C=US; O=DigiCert Inc; CN=DigiCert Global CA G2                            <<<<<<<<<<<<<<<<<<
+*  SSL certificate verify ok.
+> GET / HTTP/1.1
+> Host: www.wellsfargo.com
+> User-Agent: curl/7.66.0
+> Accept: */*
 ```
 
 - Also see: [How to Add DNS Filtering to Your NAT Instance with Squid](https://aws.amazon.com/blogs/security/how-to-add-dns-filtering-to-your-nat-instance-with-squid/)

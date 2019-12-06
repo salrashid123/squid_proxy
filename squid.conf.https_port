@@ -893,7 +893,6 @@ htcp_access deny all
 #
 # Squid normally listens to port 3128
 visible_hostname squid.yourdomain.com
-#http_port 3128 ssl-bump generate-host-certificates=on cert=/apps/server_crt.pem key=/apps/server_key.pem  sslflags=DONT_VERIFY_PEER
 https_port 3128 cert=/apps/server_crt.pem key=/apps/server_key.pem
 
 always_direct allow all  
@@ -903,8 +902,8 @@ sslproxy_flags DONT_VERIFY_PEER
 sslcrtd_program /apps/squid/libexec/ssl_crtd -s /apps/squid/var/lib/ssl_db -M 4MB sslcrtd_children 8 startup=1 idle=1  
 
 
-icap_enable          on
-icap_preview_enable  on
+icap_enable          off
+icap_preview_enable  off
 icap_preview_size    128
 icap_send_client_ip  on
 

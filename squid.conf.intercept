@@ -893,14 +893,18 @@ htcp_access deny all
 #
 # Squid normally listens to port 3128
 visible_hostname squid.yourdomain.com
-http_port 3128 ssl-bump generate-host-certificates=on cert=/apps/server_crt.pem key=/apps/server_key.pem  sslflags=DONT_VERIFY_PEER
 
-always_direct allow all  
-ssl_bump server-first all  
-sslproxy_cert_error deny all  
-sslproxy_flags DONT_VERIFY_PEER  
-sslcrtd_program /apps/squid/libexec/ssl_crtd -s /apps/squid/var/lib/ssl_db -M 4MB sslcrtd_children 8 startup=1 idle=1  
+http_port 3128 ssl-bump generate-host-certificates=on cert=/apps/CA_crt.pem key=/apps/CA_key.pem
 
+always_direct allow all
+
+always_direct allow all
+acl excluded_sites ssl::server_name .wellsfargo.com
+ssl_bump splice excluded_sites
+ssl_bump bump all
+
+sslproxy_cert_error deny all
+sslcrtd_program /apps/squid/libexec/ssl_crtd -s /apps/squid/var/lib/ssl_db -M 4MB sslcrtd_children 8 startup=1 idle=1
 
 icap_enable          on
 icap_preview_enable  on

@@ -43,30 +43,37 @@ wget https://raw.githubusercontent.com/salrashid123/squid_proxy/master/content_a
 ```
 A)
 ```
-curl --cacert CA_crt.pem -x localhost:3128  https://www.cnn.com/
+curl --cacert CA_crt.pem -x localhost:3128 \
+   https://www.cnn.com/
+   
 curl: (56) Received HTTP code 403 from proxy after CONNECT
 ```
 
 B)
 ```
 with proxy:
-curl --cacert CA_crt.pem -o /dev/null -s -x localhost:3128 -w "%{http_code}\n" -L https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
+curl --cacert CA_crt.pem -o /dev/null -s -x localhost:3128 \
+  -w "%{http_code}\n" \
+  -L https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
 403
 ```
 
 C)
 ```
 without proxy:
-curl --cacert CA_crt.pem -o /dev/null -s -w "%{http_code}\n" -L https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
+curl --cacert CA_crt.pem -o /dev/null -s -w "%{http_code}\n" \
+  -L https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
 200
 ```
 
 D)
 ```
 with proxy:
-curl --cacert CA_crt.pem -o /dev/null -s -x localhost:3128 -w "%{http_code}\n" -L https://cloud.google.com/kubernetes-engine/
+curl --cacert CA_crt.pem -o /dev/null -s \
+  -x localhost:3128 -w "%{http_code}\n" \
+  -L https://cloud.google.com/kubernetes-engine/
 200
 ```
 
 
->> Note that even over **https** B) is rejected but D) is not.
+**Note that even over **https** B) is rejected but D) is not...which means squid knew about the URI within the SSL context**
