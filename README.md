@@ -81,14 +81,14 @@ always_direct allow all
 
 acl excluded_sites ssl::server_name .wellsfargo.com
 ssl_bump splice excluded_sites
-ssl_bump splice all
+ssl_bump bump all
 
 sslproxy_cert_error deny all
 sslcrtd_program /apps/squid/libexec/ssl_crtd -s /apps/squid/var/lib/ssl_db -M 4MB sslcrtd_children 8 startup=1 idle=1
 
 ```
 
-The configuration above will insepct all SSL traffic but only _splice_ traffic to wellsfargo.com to view its intended SNI (server_name).  You can use the splice capability to apply ACL rules against without inspecting.
+The configuration above will insepct all SSL traffic but only _splice_ traffic to wellsfargo.com to view its intended SNI (`server_name`).  You can use the splice capability to apply ACL rules against without inspecting.
 
 - [SslPeekAndSplice](https://wiki.squid-cache.org/Features/SslPeekAndSplice)
 
@@ -123,7 +123,7 @@ you should see the proxy intercept and recreate httpbin's public certificate:
 
 ```
 
-note the issuer is the proxy's server certificate (CA_crt.pem), NOT httpbin's official public cert
+note the issuer is the proxy's server certificate (`CA_crt.pem`), NOT httpbin's official public cert
 
 Now try to access `www.wellsfargo.com`.  The configuration above simply views the SNI information without snooping on the data
 
