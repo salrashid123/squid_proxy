@@ -11,7 +11,6 @@ acl Safe_ports port 591         # filemaker
 acl Safe_ports port 777         # multiling http
 acl CONNECT method CONNECT
 
-#Default:
 acl googledotcom dstdomain .bbc.com
 http_access allow googledotcom
 

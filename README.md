@@ -20,6 +20,9 @@ are interested in:
 docker run  -p 3128:3128 -ti docker.io/salrashid123/squidproxy /bin/bash
 ```
 
+Also see
+- [Squid proxy cluster with ssl_bump on Google Cloud](https://github.com/salrashid123/squid_ssl_bump_gcp)
+
 ### FORWARD
 
 Explicit forward proxy mode intercepts HTTP traffic and uses CONNECT for https.
