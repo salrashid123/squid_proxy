@@ -158,15 +158,9 @@ Has cache enabled for HTTP traffic
 
 Launch
 ```
-First init the cache directories
 
-$ /apps/squid/sbin/squid -z -f /apps/squid.conf.cache
-
-then
 $ /apps/squid/sbin/squid -NsY -f /apps/squid.conf.cache
 ```
-> note: the step to init the cache directory should be in the dockerfile; i've got a todo: to figure out why the setting in the dockerfile itself to init doens't work.
-
 
 Run two requests
 ```

@@ -17,7 +17,7 @@ ADD . /apps/
 RUN chown -R nobody:nogroup /apps/
 RUN mkdir -p  /apps/squid/var/lib/
 RUN /apps/squid/libexec/ssl_crtd -c -s /apps/squid/var/lib/ssl_db -M 4MB
-RUN /apps/squid/sbin/squid -z -f /apps/squid.conf.cache
+RUN /apps/squid/sbin/squid -N -f /apps/squid.conf.cache -z
 RUN chown -R nobody:nogroup /apps/
 
 EXPOSE 3128
