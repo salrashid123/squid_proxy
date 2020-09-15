@@ -1,4 +1,4 @@
-FROM debian:8
+FROM debian:8 AS build
 RUN apt-get -y update
 RUN apt-get install -y curl supervisor git openssl  build-essential libssl-dev wget vim curl
 RUN mkdir -p /var/log/supervisor
@@ -19,6 +19,7 @@ RUN mkdir -p  /apps/squid/var/lib/
 RUN /apps/squid/libexec/ssl_crtd -c -s /apps/squid/var/lib/ssl_db -M 4MB
 RUN /apps/squid/sbin/squid -N -f /apps/squid.conf.cache -z
 RUN chown -R nobody:nogroup /apps/
+RUN chgrp -R 0 /apps && chmod -R g=u /apps
 
 EXPOSE 3128
 #CMD ["/usr/bin/supervisord"]
