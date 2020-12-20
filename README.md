@@ -16,8 +16,17 @@ To run the image, simply invoke a shell in the container and start squid in the 
 are interested in:
 
 
+```bash
+# detached background run
+docker run -d -p 3128:3128 docker.io/salrashid123/squidproxy
+
+# alternative configuration file
+docker run -it -p 3128:3128 -e CONF=squid.conf.intercept docker.io/salrashid123/squidproxy
 ```
-docker run  -p 3128:3128 -ti docker.io/salrashid123/squidproxy /bin/bash
+
+```bash
+# interactive
+docker run -it -p 3128:3128 docker.io/salrashid123/squidproxy /bin/bash
 ```
 
 Also see
