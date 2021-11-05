@@ -232,11 +232,9 @@ EXPOSE 3128
 
 ### Generating new CA
 
-THis repo and image comes with a built-in CA.  You are free to generate and volume mount your own CA.
+THis repo and image comes with a built-in CA (`root-ca.crt` is the true parent CA that signed a subordinate ca `CA_crt.pem` (yes, i know, its confusing but i used that subca with that name)).  You are free to generate and volume mount your own CA.
 
-To generate your CA, first grab an openssl.cnf file...eg
-create openssl.cnf in a folder ('myCA') from here:
- -  https://gist.github.com/salrashid123/dbb032d4538c9df5d5ceed3f3e160ed4
+- [https://github.com/salrashid123/ca_scratchpad](https://github.com/salrashid123/ca_scratchpad)
 
 then
 ```
@@ -271,7 +269,7 @@ openssl x509 -in CA_crt.pem -text -noout
 
 ---
 
-the ssl_bump mode genrates server certs on the fly for you....but just to complete the steps, if you ever wanted
+the ssl_bump mode generates server certs on the fly for you....but just to complete the steps, if you ever wanted
 to generate generate a server cert by hand:
 
 ```
