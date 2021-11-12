@@ -14,5 +14,5 @@ envoy  version: c5594b41f48b2e45df83105de84623f2930d23cd/1.15.0/clean-getenvoy-a
 then in another window
 
 ```
-curl -vv -x localhost:3128 -L https://www.bbc.com/robots.txt
+curl -vv -x localhost:3128 -L https://httpbin.org/get
 ```
