@@ -2,7 +2,7 @@
 # Squid Proxy 
 
 
-Sample squid proxy and Dockerfile demonstrating various confg modes.
+Sample squid proxy and Dockerfile demonstrating various config modes.
 
 The Dockerfile and git image compiles squid with ssl_crtd enabled which allows for SSL intercept and rewrite.
 
@@ -19,6 +19,15 @@ are interested in:
 ```
 docker run  -p 3128:3128 -ti docker.io/salrashid123/squidproxy /bin/bash
 ```
+
+>> please note that the root CA's have been updated (on `1/9/22`.  You can find the docker image with the original certs as `salrashid123/squidproxy:1` (or you can regenerate your own image from a prior commit))
+
+The CA's provided currently are chained (`root-ca.crt` -> `tls-ca.crt` -> `server_crt.pem`. With the combined root and subordinate as `tls-ca-chain.pem`)
+
+
+
+* 1/10/22: `docker.io/salrashid123/squidproxy sha256:b46d3648443d675bb3ac020248495d5d7af1b7f3b683c3068e45c0f040aa5d9c`
+
 
 Also see
 - [Squid proxy cluster with ssl_bump on Google Cloud](https://github.com/salrashid123/squid_ssl_bump_gcp)
@@ -55,7 +64,7 @@ You can also setup allow/deny rules for the domain:
 
 If you want to use ```https_port```, use ```squid.conf.https_port```.  For ```https_port``` see [curl options](https://daniel.haxx.se/blog/2016/11/26/https-proxy-with-curl/) like this:
 
-```curl -v --proxy-cacert CA_crt.pem  -x https://squid.yourdomain.com:3128  https://www.yahoo.com/```
+```curl -v --proxy-cacert tls-ca.crt  -x https://squid.yourdomain.com:3128  https://www.yahoo.com/```
 (you will need to add `127.0.0.1 squid.yourdomain.com` to your `/etc/hosts` as an override)
 
 
@@ -78,7 +87,7 @@ squid.conf.intercept:
 # Squid normally listens to port 3128
 visible_hostname squid.yourdomain.com
 
-http_port 3128 ssl-bump generate-host-certificates=on cert=/apps/CA_crt.pem key=/apps/CA_key.pem
+http_port 3128 ssl-bump generate-host-certificates=on cert=/apps/tls-ca.crt key=/apps/tls-ca.key
 
 always_direct allow all
 
@@ -104,9 +113,9 @@ $ docker run  -p 3128:3128 -ti docker.io/salrashid123/squidproxy /apps/squid/sbi
 
 then in a new window, try to access a secure site
 ```
-$ wget https://raw.githubusercontent.com/salrashid123/squid_proxy/master/CA_crt.pem
+$ wget https://raw.githubusercontent.com/salrashid123/squid_proxy/master/tls-ca.crt
 
-$ curl -v --proxy-cacert CA_crt.pem --cacert CA_crt.pem -x localhost:3128  https://www.httpbin.org
+$ curl -v --proxy-cacert tls-ca.crt --cacert tls-ca.crt -x localhost:3128  https://www.httpbin.org/get
 ```
 
 you should see the proxy intercept and recreate httpbin's public certificate:
@@ -114,36 +123,32 @@ you should see the proxy intercept and recreate httpbin's public certificate:
 ```
 * Server certificate:
 *  subject: CN=www.httpbin.org
-*  start date: Dec  6 13:24:37 2019 GMT
-*  expire date: Jul 28 13:24:37 2021 GMT
+*  start date: Jan  9 22:05:43 2022 GMT
+*  expire date: Jan  9 22:05:43 2032 GMT
 *  subjectAltName: host "www.httpbin.org" matched cert's "www.httpbin.org"
-*  issuer: C=US; ST=California; L=Mountain View; O=Google; OU=Enterprise; CN=MyCA   <<<<<<<<<<<<<<<<<<
+*  issuer: C=US; O=Google; OU=Enterprise; CN=Enterprise Subordinate CA       <<<<<<<<<<<
 *  SSL certificate verify ok.
-> GET / HTTP/1.1
+> GET /get HTTP/1.1
 > Host: www.httpbin.org
-> User-Agent: curl/7.66.0
+> User-Agent: curl/7.79.1
 > Accept: */*
-
 ```
 
-note the issuer is the proxy's server certificate (`CA_crt.pem`), NOT httpbin's official public cert
+note the issuer is the proxy's server certificate (`tls-ca.crt`), NOT httpbin's official public cert
 
 Now try to access `www.wellsfargo.com`.  The configuration above simply views the SNI information without snooping on the data
 
 ```
-$ curl -vvvv --proxy-cacert CA_crt.pem --cacert CA_crt.pem -x localhost:3128  https://www.wellsfargo.com
+$ curl -vvvv --proxy-cacert tls-ca.crt --cacert tls-ca.crt -x localhost:3128  https://www.wellsfargo.com
 
 * Server certificate:
 *  subject: businessCategory=Private Organization; jurisdictionC=US; jurisdictionST=Delaware; serialNumber=251212; C=US; ST=California; L=San Francisco; O=Wells Fargo & Company; OU=DCG-PSG; CN=www.wellsfargo.com
-*  start date: Feb  8 00:00:00 2019 GMT
-*  expire date: Feb  8 12:00:00 2021 GMT
+*  start date: Jul 11 00:00:00 2020 GMT
+*  expire date: Jul 20 12:00:00 2022 GMT
 *  subjectAltName: host "www.wellsfargo.com" matched cert's "www.wellsfargo.com"
-*  issuer: C=US; O=DigiCert Inc; CN=DigiCert Global CA G2                            <<<<<<<<<<<<<<<<<<
+*  issuer: C=US; O=DigiCert Inc; CN=DigiCert EV RSA CA G2           <<<<<<<
 *  SSL certificate verify ok.
-> GET / HTTP/1.1
-> Host: www.wellsfargo.com
-> User-Agent: curl/7.66.0
-> Accept: */*
+
 ```
 
 - Also see: [How to Add DNS Filtering to Your NAT Instance with Squid](https://aws.amazon.com/blogs/security/how-to-add-dns-filtering-to-your-nat-instance-with-squid/)
@@ -232,6 +237,6 @@ EXPOSE 3128
 
 ### Generating new CA
 
-THis repo and image comes with a built-in CA (`root-ca.crt` is the true parent CA that signed a subordinate ca `CA_crt.pem` (yes, i know, its confusing but i used that subca with that name)).  You are free to generate and volume mount your own CA.
+THis repo and image comes with a built-in CA (`root-ca.crt` is the true parent CA that signed a subordinate ca `tls-ca.crt` (yes, i know, its confusing but i used that subca with that name)).  You are free to generate and volume mount your own CA.
 
 - [https://github.com/salrashid123/ca_scratchpad](https://github.com/salrashid123/ca_scratchpad)

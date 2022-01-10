@@ -29,7 +29,7 @@ htcp_access deny all
 
 visible_hostname squid.yourdomain.com
 
-http_port 3128 ssl-bump generate-host-certificates=on cert=/apps/CA_crt.pem key=/apps/CA_key.pem
+http_port 3128 ssl-bump generate-host-certificates=on cert=/apps/tls-ca.crt key=/apps/tls-ca.key
 
 always_direct allow all
 acl excluded_sites ssl::server_name .wellsfargo.com
