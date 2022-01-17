@@ -21,5 +21,9 @@ RUN /apps/squid/sbin/squid -N -f /apps/squid.conf.cache -z
 RUN chown -R nobody:nogroup /apps/
 RUN chgrp -R 0 /apps && chmod -R g=u /apps
 
+ENV PATH=/apps/squid/sbin:${PATH}
+ENV CONF=/apps/squid.conf.forward
+
 EXPOSE 3128
-#CMD ["/usr/bin/supervisord"]
+
+CMD squid -NsY -f "${CONF}"
