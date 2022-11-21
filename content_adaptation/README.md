@@ -5,6 +5,7 @@ The dockerfile and squid proxy demonstrates two systems:
 - [ssl_bump](https://wiki.squid-cache.org/Features/SslPeekAndSplice)
 - [content adaptation](https://wiki.squid-cache.org/SquidFaq/ContentAdaptation)
 
+https://github.com/netom/pyicap/pull/42
 
 Unlike the other squid proxies, in this repo, this example runs supervisord to start both the squid proxy and content adaptation server.
 
@@ -21,7 +22,6 @@ https://www.yahoo.com/robots.txt
 http://www.bbc.com/robots.txt
 https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
 https://cloud.google.com/kubernetes-engine/release-notes
-www.cnn.com:443
 ```
 
 gets rejected.  
@@ -30,26 +30,22 @@ as a demonstration,
 
 build and run:
 
-```
+```bash
+## build; note the docker image here is really bloated; if you really want to use this, try to minimize the image size; multistage and distroless images, etc
 docker build -t sslproxy .
 
 docker run -ti -p 3128:3128 sslproxy
 ```
 
+
 then in a new window, first get the get the cert we used:
+
 
 ```
 wget https://raw.githubusercontent.com/salrashid123/squid_proxy/master/content_adaptation/tls-ca.crt
 ```
-A)
-```
-curl --cacert tls-ca.crt -x localhost:3128 \
-   https://www.cnn.com/
-   
-curl: (56) Received HTTP code 403 from proxy after CONNECT
-```
 
-B)
+A)
 ```
 with proxy:
 curl --cacert tls-ca.crt -o /dev/null -s -x localhost:3128 \
@@ -58,7 +54,7 @@ curl --cacert tls-ca.crt -o /dev/null -s -x localhost:3128 \
 403
 ```
 
-C)
+B)
 ```
 without proxy:
 curl --cacert tls-ca.crt -o /dev/null -s -w "%{http_code}\n" \
@@ -66,14 +62,14 @@ curl --cacert tls-ca.crt -o /dev/null -s -w "%{http_code}\n" \
 200
 ```
 
-D)
+C)
 ```
 with proxy:
 curl --cacert tls-ca.crt -o /dev/null -s \
   -x localhost:3128 -w "%{http_code}\n" \
-  -L https://cloud.google.com/kubernetes-engine/
+  https://cloud.google.com/kubernetes-engine/
 200
 ```
 
 
-**Note that even over **https** B) is rejected but D) is not...which means squid knew about the URI within the SSL context**
+**Note that even over **https** A) is rejected but C) is not...which means squid knew about the URI within the SSL context**

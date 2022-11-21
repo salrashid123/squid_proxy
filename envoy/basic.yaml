@@ -32,6 +32,8 @@ static_resources:
                       allow_post: true                
           http_filters:
           - name: envoy.filters.http.router
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router  
 
   clusters:
   - name: service_httpbin
@@ -48,3 +50,7 @@ static_resources:
               socket_address:
                 address: httpbin.org
                 port_value: 443
+    transport_socket:
+      name: envoy.transport_sockets.tls
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext

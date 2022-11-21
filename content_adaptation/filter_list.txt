@@ -2,4 +2,3 @@ https://www.yahoo.com/robots.txt
 http://www.bbc.com/robots.txt
 https://cloud.google.com/kubernetes-engine/docs/tutorials/istio-on-gke
 https://cloud.google.com/kubernetes-engine/release-notes
-www.cnn.com:443

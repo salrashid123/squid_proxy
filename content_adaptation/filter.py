@@ -2,38 +2,41 @@
 # -*- coding: utf8 -*-
 
 import random
-import SocketServer
+import socketserver
 import os
 from pyicap import *
 
 
 deny_list = []
 
-class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
+class ThreadingSimpleServer(socketserver.ThreadingMixIn, ICAPServer):
     pass
 
 class ICAPHandler(BaseICAPRequestHandler):
 
     def request_OPTIONS(self):
+        print('request options')
         self.set_icap_response(200)
         self.set_icap_header('Methods', 'REQMOD')
         self.set_icap_header('Service', 'PyICAP Server 1.0')
         self.send_headers(False)
+        print('done request')
 
     def request_REQMOD(self):
+        print('request start')
         self.set_icap_response(200)
 
         print("======== filter request =======")
         print(self.enc_req)
         print(self.headers)
                 
-        if (self.enc_req[0] == 'CONNECT' and self.enc_req[1] in deny_list):
-            self.set_enc_status('HTTP/1.1 403 Forbidden')
+        if (self.enc_req[0].decode() == 'CONNECT' and self.enc_req[1].decode() in deny_list):
+            self.set_enc_status(b'HTTP/1.1 403 Forbidden')
             self.send_headers(False)
             return
  
-        if (self.enc_req[1] in deny_list):
-            self.set_enc_status('HTTP/1.1 403 Forbidden')
+        if (self.enc_req[1].decode() in deny_list):
+            self.set_enc_status(b'HTTP/1.1 403 Forbidden')
             self.send_headers(False)
             return
 
@@ -56,4 +59,4 @@ try:
     while 1:
         server.handle_request()
 except KeyboardInterrupt:
-    print "Finished"
+    print("Finished")

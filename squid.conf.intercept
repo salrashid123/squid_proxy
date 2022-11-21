@@ -37,7 +37,7 @@ ssl_bump splice excluded_sites
 ssl_bump bump all
 
 sslproxy_cert_error deny all
-sslcrtd_program /apps/squid/libexec/ssl_crtd -s /apps/squid/var/lib/ssl_db -M 4MB sslcrtd_children 8 startup=1 idle=1
+sslcrtd_program /apps/squid/libexec/security_file_certgen -s /apps/squid/var/lib/ssl_db -M 4MB sslcrtd_children 8 startup=1 idle=1
 
 icap_enable          on
 icap_preview_enable  on
