@@ -1,43 +1,44 @@
-node:
-    cluster: service_greeter
-    id: test-id
-
 static_resources:
   listeners:
   - name: listener_0
     address:
-      socket_address: { address: 0.0.0.0, port_value: 3128 }
+      socket_address:
+        protocol: TCP
+        address: 127.0.0.1
+        port_value: 3128
     filter_chains:
     - filters:
       - name: envoy.filters.network.http_connection_manager
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
           stat_prefix: ingress_http
-          codec_type: AUTO
           route_config:
             name: local_route
             virtual_hosts:
             - name: local_service
-              domains: ["*"]
+              domains:
+              - "*"
               routes:
               - match:
-                  connect_matcher: {}
-                route: 
+                  connect_matcher:
+                    {}
+                route:
                   cluster: service_httpbin
                   upgrade_configs:
                   - upgrade_type: CONNECT
                     connect_config:
-                      proxy_protocol_config:
-                        version: 2
-                      allow_post: true                
+                      {}
           http_filters:
           - name: envoy.filters.http.router
             typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router  
-
+              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+          http2_protocol_options:
+            allow_connect: true
+          upgrade_configs:
+          - upgrade_type: CONNECT
   clusters:
   - name: service_httpbin
-    connect_timeout: 2s
+    connect_timeout: 0.25s
     type: LOGICAL_DNS
     dns_lookup_family: V4_ONLY
     lb_policy: ROUND_ROBIN
@@ -50,7 +51,3 @@ static_resources:
               socket_address:
                 address: httpbin.org
                 port_value: 443
-    transport_socket:
-      name: envoy.transport_sockets.tls
-      typed_config:
-        "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
