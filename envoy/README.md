@@ -13,6 +13,8 @@ envoy  version: c5594b41f48b2e45df83105de84623f2930d23cd/1.15.0/clean-getenvoy-a
 
 then in another window
 
-```
+```bash
 curl -vv -x localhost:3128 -L https://httpbin.org/get
 ```
+
+config taken from [here](https://stackoverflow.com/questions/77003728/how-to-make-envoy-forward-proxy-example-configuration-work)
